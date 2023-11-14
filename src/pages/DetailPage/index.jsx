@@ -9,6 +9,7 @@ import { Balance } from "../../assets/Balance";
 import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
+import DamageRelations from "../../components/DamageRelations";
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState();
@@ -36,7 +37,7 @@ const DetailPage = () => {
             return type.data.damage_relations;
           })
         );
-        console.log(types);
+        
         const formattedPokemonData = {
           id,
           name,
@@ -49,6 +50,7 @@ const DetailPage = () => {
           DamageRelations,
           types: types.map((type) => type.type.name),
         };
+        
         
         setPokemon(formattedPokemonData);
         setIsLoding(false);
@@ -226,7 +228,9 @@ const DetailPage = () => {
           {pokemon.DamageRelations && (
             <div className="w-10/12">
               <h2 className={`text-base text-center font-semibold ${text}`}>
-                데미지 관계
+                <DamageRelations 
+                  damages={pokemon.DamageRelations}
+                />
               </h2>
               데미지
             </div>

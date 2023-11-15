@@ -10,10 +10,12 @@ import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
 import DamageRelations from "../../components/DamageRelations";
+import DamageModal from "../../components/DamageModal";
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState();
   const [isLoding, setIsLoding] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const params = useParams();
   const pokemonId = params.id;
@@ -28,7 +30,8 @@ const DetailPage = () => {
     try {
       const { data: pokemonData } = await axios.get(url);
       if (pokemonData) {
-        const { name, id, types, weight, height, stats, abilities } = pokemonData;
+        const { name, id, types, weight, height, stats, abilities } =
+          pokemonData;
         const nextAndPreviousPokemon = await getNextAndPreviousPokemon(id);
 
         const DamageRelations = await Promise.all(
@@ -37,7 +40,7 @@ const DetailPage = () => {
             return type.data.damage_relations;
           })
         );
-        
+
         const formattedPokemonData = {
           id,
           name,
@@ -50,8 +53,7 @@ const DetailPage = () => {
           DamageRelations,
           types: types.map((type) => type.type.name),
         };
-        
-        
+
         setPokemon(formattedPokemonData);
         setIsLoding(false);
       }
@@ -80,9 +82,7 @@ const DetailPage = () => {
   const formatPokemonAbilities = (abilities) => {
     return abilities
       .filter((_, index) => index <= 1)
-      .map((obj) => 
-        obj.ability.name.replaceAll("-", " ")
-      );
+      .map((obj) => obj.ability.name.replaceAll("-", " "));
   };
 
   async function getNextAndPreviousPokemon(id) {
@@ -163,6 +163,7 @@ const DetailPage = () => {
               loading="lazy"
               alt={pokemon.name}
               className={`object-contain h-full`}
+              onClick={() => setIsModalOpen(true)}
             />
           </div>
         </section>
@@ -174,9 +175,7 @@ const DetailPage = () => {
             ))}
           </div>
 
-          <h2 className={`text-base font-semibold ${text}`}>
-            정보
-          </h2>
+          <h2 className={`text-base font-semibold ${text}`}>정보</h2>
 
           <div className="flex w-full items-center justify-between max-w-[400px] text-center">
             <div className="w-full">
@@ -198,45 +197,50 @@ const DetailPage = () => {
             <div className="w-full">
               <h4 className="text-[0.5rem] text-zinc-100">Weight</h4>
               {pokemon.abilities.map((ability) => (
-                <div key={ability} className='text-[0.5rem] text-zinc-100 capitalize'>{ability}</div>
+                <div
+                  key={ability}
+                  className="text-[0.5rem] text-zinc-100 capitalize"
+                >
+                  {ability}
+                </div>
               ))}
             </div>
           </div>
 
-          <h2 className={`text-base font-semibold ${text}`}>
-            기본 능력치
-          </h2>
+          <h2 className={`text-base font-semibold ${text}`}>기본 능력치</h2>
 
           <div className="w-full">
-            
             <table>
               <tbody>
                 {pokemon.stats.map((stat) => (
-                  <BaseStat 
+                  <BaseStat
                     key={stat.name}
                     valueStat={stat.baseStat}
                     nameStat={stat.name}
                     type={pokemon.types[0]}
-                   />
+                  />
                 ))}
-                
-                
               </tbody>
             </table>
           </div>
 
-          {pokemon.DamageRelations && (
+          {/* {pokemon.DamageRelations && (
             <div className="w-10/12">
               <h2 className={`text-base text-center font-semibold ${text}`}>
-                <DamageRelations 
-                  damages={pokemon.DamageRelations}
-                />
+                <DamageRelations damages={pokemon.DamageRelations} />
               </h2>
               데미지
             </div>
-          )}
+          )} */}
         </section>
+        
       </div>
+      {isModalOpen && (
+          <DamageModal
+            setIsModalOpen={setIsModalOpen}
+            damages={pokemon.DamageRelations}
+          />
+        )}
     </article>
   );
 };

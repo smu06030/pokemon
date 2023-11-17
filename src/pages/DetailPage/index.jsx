@@ -14,7 +14,7 @@ import DamageModal from "../../components/DamageModal";
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState();
-  const [isLoding, setIsLoding] = useState(true);
+  const [isLoding, setIsLoding] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const params = useParams();
@@ -22,11 +22,12 @@ const DetailPage = () => {
   const baseUrl = `https://pokeapi.co/api/v2/pokemon/`;
 
   useEffect(() => {
-    fetchPokemonData();
-  }, []);
+    setIsLoding(true);
+    fetchPokemonData(pokemonId);
+  }, [pokemonId]);
 
-  async function fetchPokemonData() {
-    const url = `${baseUrl}${pokemonId}`;
+  async function fetchPokemonData(id) {
+    const url = `${baseUrl}${id}`;
     try {
       const { data: pokemonData } = await axios.get(url);
       if (pokemonData) {
@@ -53,6 +54,7 @@ const DetailPage = () => {
           DamageRelations,
           types: types.map((type) => type.type.name),
           sprites: formatPokemonSprites(sprites),
+          description: await getPokemonDescription(id)
         };
 
         setPokemon(formattedPokemonData);
@@ -62,6 +64,25 @@ const DetailPage = () => {
       console.log(error);
       setIsLoding(false);
     }
+  }
+
+  const filterAndFormatDescription = (flavorText) => {
+    
+    const koreanDescription = flavorText?.filter((text) => text.language.name === 'ko')
+      .map((text) => text.flavor_text.replace(/\r|\n|\f/g,' '))
+
+    return koreanDescription;
+    
+  }
+
+  const getPokemonDescription = async(id) => {
+    const url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`
+
+    const {data: pokemonSpecies} = await axios.get(url);
+    
+    const descriptions = filterAndFormatDescription(pokemonSpecies.flavor_text_entries);
+    
+    return descriptions[Math.floor(Math.random() * descriptions.length)];
   }
 
   const formatPokemonSprites = (sprites) => {
@@ -235,6 +256,13 @@ const DetailPage = () => {
               </tbody>
             </table>
           </div>
+          
+          <h2 className={`text-base font-semibold ${text}`}>
+            설명
+          </h2>
+          <p className="text-md leading-4 font-sans text-zinc-200 max-w-[30rem] text-center">
+            {pokemon.description}
+          </p>
 
           <div className="flex my-8 flex-wrap justify-center">
             {pokemon.sprites.map((url, index) => (

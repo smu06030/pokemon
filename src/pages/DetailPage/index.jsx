@@ -242,7 +242,7 @@ const DetailPage = () => {
 
           <h2 className={`text-base font-semibold ${text}`}>기본 능력치</h2>
 
-          <div className="w-full">
+          <div className="w-full flex justify-center">
             <table>
               <tbody>
                 {pokemon.stats.map((stat) => (
@@ -264,7 +264,7 @@ const DetailPage = () => {
             {pokemon.description}
           </p>
 
-          <div className="flex my-8 flex-wrap justify-center">
+          <div className="flex my-8 px-16 flex-wrap justify-center">
             {pokemon.sprites.map((url, index) => (
               <img key={index} src={url} alt="sprite" />
             ))}
